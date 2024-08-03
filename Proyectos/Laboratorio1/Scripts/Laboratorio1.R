@@ -1,6 +1,8 @@
 library(readxl)
 library(dplyr)
 library(lubridate)
+library(openxlsx)
+library(readr)
 
 process_file <- function(file_path, base_date, months_to_add) {
   data <- read_excel(file_path)
@@ -12,7 +14,6 @@ process_file <- function(file_path, base_date, months_to_add) {
 }
 
 base_date <- as.Date("2023-01-01")
-
 file_paths <- sprintf("Laboratorio1/%02d-2023.xlsx", 1:11)
 
 data_list <- lapply(seq_along(file_paths), function(i) {
@@ -20,20 +21,12 @@ data_list <- lapply(seq_along(file_paths), function(i) {
 })
 
 combined_data <- bind_rows(data_list)
+write.xlsx(combined_data, 'excel_laboratorio1.xlsx')
 
+library(knitr)
 
-find_mode <- function(v) {
-  uniq_vals <- unique(v)
-  uniq_vals[which.max(tabulate(match(v, uniq_vals)))]
-}
+# Usamos knitr para convertir el dataframe a formato Markdown
+markdown_table <- kable(combined_data, format = 'markdown')
 
-my_list <- list(
-  c(1, 2, 2, 3, 3, 3, 4, 4),
-  c(10, 20, 20, 20, 30, 40),
-  c(5, 5, 6, 7, 8, 8, 8)
-)
-
-modes <- lapply(my_list, find_mode)
-
-# Ver el resultado
-print(modes)
+# Escribe la tabla en un archivo de texto
+writeLines(markdown_table, 'output_table.md')
